@@ -52,7 +52,7 @@ def call_serotype(fasta, outdir):
         low_conf_flag = '{} called at low confidence;'.format(prediction[1])
         prediction[3] = prediction[3] + low_conf_flag
         prediction[1] = 'NT'
-        update_log('confidence threshold not met for {}'.format(prediction[0]))
+        exp.update_log('confidence threshold not met for {}'.format(prediction[0]))
     exp.update_log('{0} called as {1}'.format(prediction[0], prediction[1]))
     if outdir: exp.write_results(outdir, prediction)
     return prediction
