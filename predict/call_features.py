@@ -5,6 +5,7 @@ Python 3.10.6
 '''
 
 import os
+from pathlib import Path
 import re
 import xml.etree.ElementTree as ET
 
@@ -22,7 +23,7 @@ class ORFchecker:
 
     # run blast search for causal gene
     def blast(self):
-        ref = 'ref/blast/causal_genes.fasta'
+        ref = Path(__file__).parent.parent / 'ref/blast/causal_genes.fasta'
         self.blst = self.fasta.split('.f')[0] + '_blast.xml'
         cmd = 'blastn -db {0} -query {1} -out {2} -outfmt 5'.format(ref, self.fasta, self.blst)
         os.system(cmd)
