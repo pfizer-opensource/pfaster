@@ -5,13 +5,14 @@ Python 3.10.6
 '''
 
 import csv
+from pathlib import Path
 
 class ThresholdCall:
 
     def __init__(self, serotype, prob):
         self.serotype = serotype
         self.prob = float(prob)
-        self.threshold_file = 'ref/threshold/prob_thresholds.csv'
+        self.threshold_file = Path(__file__).parent.parent / "ref/threshold/prob_thresholds.csv"
         self.thresholds = None
         self.valid = True
         self.run_check()

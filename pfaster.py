@@ -4,20 +4,23 @@ Python 3.10.6
 12 September 2022
 '''
 
+from pathlib import Path
+
 from predict import Mash, call_features, threshold, model_predict
 from tools import cmd_parser
 from tools import exporters as exp
 
 
 def screen_fasta(fasta, db = 'sketch_k70.pkl'):
-    screener = Mash.MashScreen('ref/sketch/{}'.format(db))
+    db_path = Path(__file__).parent / "ref/sketch" / db
+    screener = Mash.MashScreen(db_path)
     screener.screen(fasta)
     matches = screener.ref_counts
     return list(matches.values())
 
 def run_model(mash_results, model = 'model.rfm'):
-    model = 'model/{}'.format(model)
-    st = model_predict.RFClassify(mash_results, model).serotype
+    model_path = Path(__file__).parent / "model" / model
+    st = model_predict.RFClassify(mash_results, model_path).serotype
     return st # tuple - serotype, probability
 
 def call_serotype(fasta, outdir):
@@ -43,9 +46,8 @@ def call_serotype(fasta, outdir):
             prediction[3] = prediction[3] + feature_check.flag
         prediction[1] = pred_sero
         prediction[2] = prob
-    except:
-        prediction = [fasta, 'not typed', 'N/A', 'failed to predict serotype']
-        return prediction
+    except Exception as e:
+        raise RuntimeError("calling serotype") from e
     #probability thresholding
     high_confidence = threshold.ThresholdCall(prediction[1], prediction[2]).valid
     if not high_confidence:
