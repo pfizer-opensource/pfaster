@@ -14,15 +14,14 @@ class ORFchecker:
 
     def __init__(self, fasta, serogroup):
         self.fasta = fasta
-        self.serogroup = serogroup #15,18,35
+        self.serogroup = serogroup #15,18,35, 20
         self.blst = 'dummy.xml'
         self.serotype = serogroup
         self.flag = ''
         self.run()
 
     # run blast search for causal gene
-    def blast(self):
-        ref = 'ref/blast/causal_genes.fasta'
+    def blast(self, ref='ref/blast/causal_genes'):
         self.blst = self.fasta.split('.f')[0] + '_blast.xml'
         cmd = 'blastn -db {0} -query {1} -out {2} -outfmt 5'.format(ref, self.fasta, self.blst)
         os.system(cmd)
@@ -70,16 +69,25 @@ class ORFchecker:
     def cleanup(self):
         if os.path.exists(self.blst):
             os.system('rm ' + self.blst)
+    
+    def run_helper(self, st_tbl, ref='ref/blast/causal_genes'):
+        self.blast(ref)
+        blast_result = self.pull_results()
+        corrected = self.curate_sequence(blast_result)
+        prot_functional = self.integrity_check(corrected)
+        
+        soi = st_tbl[self.serogroup] #serotypes of interest
+        self.serotype = soi[prot_functional]
 
     def run(self):
         try:
-            self.blast()
-            blast_result = self.pull_results()
-            corrected = self.curate_sequence(blast_result)
-            prot_functional = self.integrity_check(corrected)
-            st_tbl = {'15':{1:'15B', 0:'15C'}, '18':{1:'18C', 0:'18B'}, '35':{1:'35B', 0:'35D'}}
-            soi = st_tbl[self.serogroup] #serotypes of interest
-            self.serotype = soi[prot_functional]
+            st_tbl = {'15':{1:'15B', 0:'15C'}, '18':{1:'18C', 0:'18B'}, '35':{1:'35B', 0:'35D'},
+                      '20':{1:'20B', 0:'20A'}}
+            self.run_helper(st_tbl)
+            # performs secondary check for serogroup 20
+            if self.serotype == '20B':
+                st_tbl = {'20':{1:'20B', 0:'20C'}}
+                self.run_helper(st_tbl, ref='ref/blast/secondary_genes')
         except:
             self.flag = 'ORF PREDICTION FAILED: SEROTYPE AMBIGUOUS;'
         finally:

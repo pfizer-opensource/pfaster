@@ -1,0 +1,21 @@
+name: pfaster-latest-deps
+generated: "2026-03-19"
+
+python:
+  version: "3.13.5"
+
+pip_dependencies:
+  scikit-learn: "1.8.0"
+  numpy: "2.4.3"
+  scipy: "1.17.1"
+  joblib: "1.5.3"
+  threadpoolctl: "3.6.0"
+  biopython: "1.86"
+  mmh3: "5.2.1"
+  screed: "1.2.0"
+
+system_dependencies:
+  ncbi-blast+:
+    package_manager: "apt"
+    package_version: "2.16.0+ds-7"
+    blastn_version: "2.16.0+"

@@ -19,6 +19,7 @@ class MinHash:
         self.s = s
         self.k = k
         self.seed = seed
+        self.valid_bases = {'A', 'C', 'G', 'T'}
 
     # convert k-mer to its canonical sequence
     def get_canon_seq(self, kmer):
@@ -59,22 +60,23 @@ class MinHash:
         i = 0
         while i <= len(seq)- self.k:
             kmer = seq[i:(i+ self.k - 1)].upper() # converts to upper to ignore strand
-            canon_kmer = self.get_canon_seq(kmer)
-            k_hashed = self.hash_kmer(canon_kmer)
+            if set(kmer) <= self.valid_bases:
+                canon_kmer = self.get_canon_seq(kmer)
+                k_hashed = self.hash_kmer(canon_kmer)
 
-            if k_hashed in hash_dict:
-                 # count implementation for potential future use with raw reads
-                hash_dict[k_hashed] += 1
+                if k_hashed in hash_dict:
+                     # count implementation for potential future use with raw reads
+                    hash_dict[k_hashed] += 1
 
-            else:
-                hash_dict[k_hashed] = 1
-                bisect.insort(hash_list, k_hashed)
+                else:
+                    hash_dict[k_hashed] = 1
+                    bisect.insort(hash_list, k_hashed)
 
-                # remove the largest value if above s hashes
-                if len(hash_dict) > self.s:
-                    hash_max = hash_list[-1]
-                    del hash_dict[hash_max]
-                    del hash_list[-1]
+                    # remove the largest value if above s hashes
+                    if len(hash_dict) > self.s:
+                        hash_max = hash_list[-1]
+                        del hash_dict[hash_max]
+                        del hash_list[-1]
 
             i += 1
 
@@ -149,9 +151,10 @@ class MashScreen:
             i = 0
             while i <= len(seq)- self.k:
                 kmer = seq[i:(i + self.k - 1)].upper()
-                k_hashed = mh.hash_kmer(kmer)
-                if k_hashed in self.hash_counts:
-                    self.hash_counts[k_hashed] += 1
+                if set(kmer) <= mh.valid_bases:
+                    k_hashed = mh.hash_kmer(kmer)
+                    if k_hashed in self.hash_counts:
+                        self.hash_counts[k_hashed] += 1
                 i += 1
 
     # count number of matched hashes per reference genome

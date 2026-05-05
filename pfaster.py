@@ -9,7 +9,7 @@ from tools import cmd_parser
 from tools import exporters as exp
 
 
-def screen_fasta(fasta, db = 'sketch_k70.pkl'):
+def screen_fasta(fasta, db = 'sketch_k70_model73.pkl'):
     screener = Mash.MashScreen('ref/sketch/{}'.format(db))
     screener.screen(fasta)
     matches = screener.ref_counts
@@ -29,12 +29,13 @@ def call_serotype(fasta, outdir):
         exp.update_log('MashScreen completed')
         pred = run_model(hash_matches) # pass results to RF model
         exp.update_log('Model probabilities computed')
-        pred_sero = pred[0][2:] # removes 'Pn' prefix
+        pred_label = str(pred[0])
+        pred_sero = pred_label[2:] if pred_label.startswith('Pn') else pred_label
         prob = round(pred[1], 2)
         if pred_sero in {'24B', '24F'}:
             prediction[3] = 'AMBIGUOUS - 24B OR 24F'
         # run ORF check step
-        ambig_types = ('35B', '35D', '18B', '18C', '15B', '15C')
+        ambig_types = ('35B', '35D', '18B', '18C', '15B', '15C', '20')
         if pred_sero in ambig_types:
             msg = 'ambiguous serotype for {} - checking ORF'.format(fasta)
             exp.update_log(msg)

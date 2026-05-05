@@ -127,3 +127,16 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# BLAST nucleotide database artifacts (keep .fasta tracked)
+ref/blast/*.nhr
+ref/blast/*.nin
+ref/blast/*.nsq
+ref/blast/*.ndb
+ref/blast/*.njs
+ref/blast/*.nog
+ref/blast/*.nsd
+ref/blast/*.nsi
+ref/blast/*.not
+ref/blast/*.ntf
+ref/blast/*.nto
